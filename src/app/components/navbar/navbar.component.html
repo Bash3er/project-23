@@ -1,0 +1,85 @@
+<header class="navbar">
+  <div class="navbar-left">
+    <button mat-icon-button (click)="menuToggle.emit()" class="menu-btn">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <div class="brand" routerLink="/dashboard">
+      <div class="brand-icon">
+        <mat-icon>corporate_fare</mat-icon>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">AttendIQ</span>
+        <span class="brand-sub">L&T Construction</span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="navbar-links">
+    <a routerLink="/dashboard" routerLinkActive="active" mat-button>
+      <mat-icon>dashboard</mat-icon> Dashboard
+    </a>
+    <a routerLink="/employees" routerLinkActive="active" mat-button>
+      <mat-icon>people</mat-icon> Employees
+    </a>
+    <a routerLink="/attendance" routerLinkActive="active" mat-button>
+      <mat-icon>schedule</mat-icon> Attendance
+    </a>
+    <a routerLink="/leave-request" routerLinkActive="active" mat-button>
+      <mat-icon>event_note</mat-icon> Leave
+    </a>
+    @if (isHR) {
+      <a routerLink="/leave-approval" routerLinkActive="active" mat-button class="hr-link">
+        <mat-icon>approval</mat-icon> HR Panel
+      </a>
+    }
+  </nav>
+
+  <div class="navbar-right">
+    <!-- Theme Toggle -->
+    <button mat-icon-button (click)="toggleTheme()" class="theme-btn"
+      [matTooltip]="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+      <mat-icon>{{ isDark ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+
+    <!-- Role Switcher (Demo) -->
+    <button mat-button [matMenuTriggerFor]="roleMenu" class="role-btn">
+      <mat-icon>swap_horiz</mat-icon>
+      <span>Demo Role</span>
+    </button>
+    <mat-menu #roleMenu="matMenu">
+      <button mat-menu-item (click)="switchRole('admin')">
+        <mat-icon>admin_panel_settings</mat-icon> Admin
+      </button>
+      <button mat-menu-item (click)="switchRole('hr')">
+        <mat-icon>manage_accounts</mat-icon> HR Manager
+      </button>
+      <button mat-menu-item (click)="switchRole('employee')">
+        <mat-icon>person</mat-icon> Employee
+      </button>
+    </mat-menu>
+
+    <!-- User Menu -->
+    <button mat-icon-button [matMenuTriggerFor]="userMenu" class="avatar-btn">
+      <div class="avatar">{{ user?.name | slice:0:1 }}</div>
+    </button>
+    <mat-menu #userMenu="matMenu" class="user-menu">
+      <div class="user-info-panel">
+        <div class="user-avatar-lg">{{ user?.name | slice:0:1 }}</div>
+        <strong>{{ user?.name }}</strong>
+        <span class="role-badge">{{ user?.role | titlecase }}</span>
+        <span class="dept">{{ user?.department }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item routerLink="/employees/{{ user?.employeeId }}">
+        <mat-icon>account_circle</mat-icon> My Profile
+      </button>
+      <button mat-menu-item>
+        <mat-icon>settings</mat-icon> Settings
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item class="logout-btn">
+        <mat-icon>logout</mat-icon> Sign Out
+      </button>
+    </mat-menu>
+  </div>
+</header>

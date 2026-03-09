@@ -1,0 +1,187 @@
+<div class="detail-page" *ngIf="!loading && employee">
+  <!-- Back -->
+  <a routerLink="/employees" class="back-link">
+    <mat-icon>arrow_back</mat-icon> Back to Employees
+  </a>
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="profile-banner"></div>
+    <div class="profile-content">
+      <div class="profile-avatar">{{ employee.name | initials }}</div>
+      <div class="profile-info">
+        <h1>{{ employee.name }}</h1>
+        <p class="designation">{{ employee.designation }} · {{ employee.department }}</p>
+        <span class="status-badge" [class]="employee.status">{{ employee.status | titlecase }}</span>
+      </div>
+      <div class="profile-actions">
+        <button mat-stroked-button>
+          <mat-icon>edit</mat-icon> Edit Profile
+        </button>
+        <button mat-flat-button color="primary" routerLink="/leave-request">
+          <mat-icon>event_note</mat-icon> Apply Leave
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-item">
+      <span class="stat-val">{{ presentDays }}</span>
+      <span class="stat-label">Days Present</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val absent">{{ absentDays }}</span>
+      <span class="stat-label">Days Absent</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val warning">{{ lateDays }}</span>
+      <span class="stat-label">Late Arrivals</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val primary">{{ attendanceRate }}%</span>
+      <span class="stat-label">Attendance Rate</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">{{ leaveRequests.length }}</span>
+      <span class="stat-label">Leave Requests</span>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <!-- Left Column -->
+    <div class="left-col">
+      <!-- Personal Info -->
+      <div class="info-card">
+        <h3><mat-icon>person</mat-icon> Personal Information</h3>
+        <div class="info-row">
+          <span class="info-label">Employee ID</span>
+          <span class="info-val mono">{{ employee.employeeId }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email</span>
+          <span class="info-val">{{ employee.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Phone</span>
+          <span class="info-val">{{ employee.phone }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Department</span>
+          <span class="info-val">{{ employee.department }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Designation</span>
+          <span class="info-val">{{ employee.designation }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Manager</span>
+          <span class="info-val">{{ employee.manager || 'N/A' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Join Date</span>
+          <span class="info-val">{{ employee.joinDate | date:'dd MMMM yyyy' }}</span>
+        </div>
+      </div>
+
+      <!-- Leave Balance -->
+      @if (leaveBalance) {
+        <div class="info-card">
+          <h3><mat-icon>beach_access</mat-icon> Leave Balance</h3>
+          <div class="leave-balance-grid">
+            <div class="lb-item">
+              <span class="lb-val">{{ leaveBalance.casual }}</span>
+              <span class="lb-label">Casual</span>
+            </div>
+            <div class="lb-item">
+              <span class="lb-val">{{ leaveBalance.sick }}</span>
+              <span class="lb-label">Sick</span>
+            </div>
+            <div class="lb-item">
+              <span class="lb-val">{{ leaveBalance.earned }}</span>
+              <span class="lb-label">Earned</span>
+            </div>
+            <div class="lb-item">
+              <span class="lb-val">{{ leaveBalance.paternity || leaveBalance.maternity }}</span>
+              <span class="lb-label">Mat/Pat</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Right Column: Tabs -->
+    <div class="right-col">
+      <mat-tab-group animationDuration="200ms" class="detail-tabs">
+        <!-- Attendance Tab -->
+        <mat-tab label="Attendance History">
+          <div class="tab-content">
+            @if (attendance.length === 0) {
+              <div class="empty-tab">
+                <mat-icon>schedule</mat-icon>
+                <p>No attendance records found</p>
+              </div>
+            } @else {
+              <div class="att-history">
+                @for (rec of attendance; track rec.id) {
+                  <div class="att-history-row" [class]="'att-' + rec.status">
+                    <div class="att-date">
+                      <span class="date-day">{{ rec.date | date:'d' }}</span>
+                      <span class="date-month">{{ rec.date | date:'MMM' }}</span>
+                    </div>
+                    <div class="att-detail">
+                      <span class="att-status-text">{{ rec.status | titlecase }}</span>
+                      @if (rec.checkIn) {
+                        <span class="att-time">{{ rec.checkIn }} → {{ rec.checkOut || 'Active' }}</span>
+                      }
+                    </div>
+                    <span class="att-hours" *ngIf="rec.hoursWorked > 0">{{ rec.hoursWorked | number:'1.1-1' }}h</span>
+                    <div class="att-dot" [class]="'dot-' + rec.status"></div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </mat-tab>
+
+        <!-- Leave History Tab -->
+        <mat-tab label="Leave History">
+          <div class="tab-content">
+            @if (leaveRequests.length === 0) {
+              <div class="empty-tab">
+                <mat-icon>event_available</mat-icon>
+                <p>No leave requests found</p>
+              </div>
+            } @else {
+              <div class="leave-history">
+                @for (leave of leaveRequests; track leave.id) {
+                  <div class="leave-history-card" [class]="'ls-' + leave.status">
+                    <div class="lh-header">
+                      <span class="lh-type">{{ leave.leaveType | leaveTypeBadge }}</span>
+                      <span class="lh-status" [class]="leave.status">{{ leave.status | titlecase }}</span>
+                    </div>
+                    <div class="lh-dates">
+                      <mat-icon>date_range</mat-icon>
+                      {{ leave.fromDate | date:'dd MMM' }} – {{ leave.toDate | date:'dd MMM y' }}
+                      <span class="lh-days">({{ leave.days }} day{{ leave.days > 1 ? 's' : '' }})</span>
+                    </div>
+                    <p class="lh-reason">{{ leave.reason }}</p>
+                    @if (leave.remarks) {
+                      <p class="lh-remarks"><mat-icon>comment</mat-icon> {{ leave.remarks }}</p>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+</div>
+
+<div class="loading-state" *ngIf="loading">
+  <mat-icon>refresh</mat-icon>
+  <p>Loading profile…</p>
+</div>

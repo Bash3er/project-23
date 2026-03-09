@@ -1,0 +1,299 @@
+// ─── Google Fonts ─────────────────────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+// ─── Light Theme (default) ────────────────────────────────────────────────────
+:root,
+[data-theme="light"] {
+  --primary: #4f46e5;
+  --primary-rgb: 79, 70, 229;
+  --accent: #0ea5e9;
+  --accent-rgb: 14, 165, 233;
+
+  --bg: #f8f9fc;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --border: #e8eaed;
+  --text: #111827;
+  --text-muted: #6b7280;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,0.12);
+
+  // Status colours (same in both themes)
+  --present-bg: #d1fae5;  --present-text: #065f46;
+  --absent-bg:  #fee2e2;  --absent-text:  #991b1b;
+  --late-bg:    #fef3c7;  --late-text:    #92400e;
+  --halfday-bg: #e0e7ff;  --halfday-text: #3730a3;
+  --pending-bg: #fef3c7;  --pending-text: #92400e;
+  --approved-bg:#d1fae5;  --approved-text:#065f46;
+  --rejected-bg:#fee2e2;  --rejected-text:#991b1b;
+
+  // Material component vars
+  --mat-bg: #ffffff;
+  --mat-card-bg: #ffffff;
+  --mat-input-bg: #f8f9fc;
+  --mat-menu-bg: #ffffff;
+  --mat-sidenav-bg: #ffffff;
+}
+
+// ─── Dark Theme ───────────────────────────────────────────────────────────────
+[data-theme="dark"] {
+  --primary: #818cf8;
+  --primary-rgb: 129, 140, 248;
+  --accent: #38bdf8;
+  --accent-rgb: 56, 189, 248;
+
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface-raised: #222534;
+  --border: #2e3146;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,0.6);
+
+  // Status colours — slightly muted for dark
+  --present-bg: rgba(16,185,129,0.15);  --present-text: #6ee7b7;
+  --absent-bg:  rgba(239,68,68,0.15);   --absent-text:  #fca5a5;
+  --late-bg:    rgba(245,158,11,0.15);  --late-text:    #fde68a;
+  --halfday-bg: rgba(99,102,241,0.15);  --halfday-text: #c7d2fe;
+  --pending-bg: rgba(245,158,11,0.15);  --pending-text: #fde68a;
+  --approved-bg:rgba(16,185,129,0.15);  --approved-text:#6ee7b7;
+  --rejected-bg:rgba(239,68,68,0.15);   --rejected-text:#fca5a5;
+
+  // Material component overrides
+  --mat-bg: #1a1d27;
+  --mat-card-bg: #1a1d27;
+  --mat-input-bg: #0f1117;
+  --mat-menu-bg: #1a1d27;
+  --mat-sidenav-bg: #1a1d27;
+
+  // Material MDC token overrides for dark
+  --mdc-filled-text-field-container-color: #0f1117;
+  --mdc-outlined-text-field-label-text-color: #94a3b8;
+  --mdc-outlined-text-field-input-text-color: #f1f5f9;
+  --mat-select-trigger-text-color: #f1f5f9;
+  --mat-option-label-text-color: #f1f5f9;
+  --mat-menu-item-label-text-color: #f1f5f9;
+  --mdc-list-list-item-label-text-color: #f1f5f9;
+  --mat-sidenav-content-background-color: #0f1117;
+  --mat-sidenav-container-background-color: #1a1d27;
+
+  color-scheme: dark;
+}
+
+// ─── Reset & Base ─────────────────────────────────────────────────────────────
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 14px;
+  background-color: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Sora', sans-serif;
+  color: var(--text);
+}
+
+a { color: var(--primary); }
+
+// ─── Scrollbar ────────────────────────────────────────────────────────────────
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+// ─── Dark: native inputs (time, date, select, textarea) ───────────────────────
+[data-theme="dark"] {
+  input[type="time"],
+  input[type="date"],
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  textarea,
+  select {
+    background-color: var(--bg) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+    color-scheme: dark;
+  }
+
+  // Mat form fields
+  .mat-mdc-input-element,
+  .mat-mdc-select-value-text,
+  .mat-mdc-select-placeholder,
+  .mat-mdc-option,
+  .mat-mdc-form-field-label,
+  .mdc-floating-label,
+  .mdc-text-field__input {
+    color: var(--text) !important;
+  }
+
+  .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-text-field__input {
+    color: var(--text) !important;
+  }
+
+  // Menus
+  .mat-mdc-menu-panel,
+  .mdc-menu-surface {
+    background: var(--surface-raised) !important;
+    border: 1px solid var(--border) !important;
+  }
+
+  // Select panel
+  .mat-mdc-select-panel {
+    background: var(--surface-raised) !important;
+  }
+
+  .mat-mdc-option {
+    color: var(--text) !important;
+    &:hover, &.mdc-list-item--selected {
+      background: rgba(var(--primary-rgb), 0.15) !important;
+    }
+  }
+
+  // Dialog
+  .mat-mdc-dialog-container,
+  .mdc-dialog__surface {
+    background: var(--surface) !important;
+    color: var(--text) !important;
+  }
+
+  // Sidenav
+  .mat-sidenav, .mat-sidenav-content {
+    background: var(--bg) !important;
+  }
+
+  // Tabs
+  .mat-mdc-tab-body-wrapper,
+  .mat-mdc-tab-group {
+    background: var(--surface) !important;
+  }
+
+  .mat-mdc-tab-label-container {
+    background: var(--surface) !important;
+  }
+
+  // Progress bar
+  .mdc-linear-progress__track { background: var(--border) !important; }
+
+  // Table
+  .mat-mdc-table {
+    background: var(--surface) !important;
+    .mat-mdc-header-row { background: var(--bg) !important; }
+    .mat-mdc-row:hover .mat-mdc-cell { background: var(--surface-raised) !important; }
+    .mat-mdc-header-cell,
+    .mat-mdc-cell { color: var(--text) !important; border-color: var(--border) !important; }
+  }
+
+  // Chips
+  .mdc-evolution-chip { background: var(--surface-raised) !important; }
+
+  // Snackbar
+  .mat-mdc-snack-bar-container {
+    background: var(--surface-raised) !important;
+  }
+
+  // List items (sidenav)
+  .mat-mdc-list-item {
+    color: var(--text) !important;
+    .mat-icon { color: var(--text-muted) !important; }
+    &:hover { background: rgba(var(--primary-rgb), 0.1) !important; }
+  }
+}
+
+// ─── Material Overrides (shared) ──────────────────────────────────────────────
+.mat-mdc-form-field {
+  &.mat-form-field-appearance-outline {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: var(--border) !important;
+    }
+    &:hover .mdc-notched-outline__leading,
+    &:hover .mdc-notched-outline__notch,
+    &:hover .mdc-notched-outline__trailing {
+      border-color: var(--text-muted) !important;
+    }
+    &.mat-focused .mdc-notched-outline__leading,
+    &.mat-focused .mdc-notched-outline__notch,
+    &.mat-focused .mdc-notched-outline__trailing {
+      border-color: var(--primary) !important;
+    }
+  }
+  .mat-mdc-form-field-infix { padding-top: 10px !important; padding-bottom: 10px !important; }
+  .mat-mdc-floating-label { color: var(--text-muted) !important; }
+  .mat-mdc-input-element { color: var(--text) !important; }
+}
+
+.mat-mdc-card { border-radius: 16px !important; background: var(--surface) !important; }
+
+.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-stroked-button, .mat-mdc-flat-button {
+  border-radius: 8px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+}
+
+.mat-primary {
+  --mdc-filled-button-container-color: var(--primary);
+  --mat-filled-button-ripple-color: rgba(var(--primary-rgb), 0.2);
+}
+
+.mat-mdc-tab-label-container { border-bottom: 1px solid var(--border) !important; }
+
+.mat-mdc-snack-bar-container {
+  border-radius: 10px !important;
+  &.success-snack { --mdc-snackbar-container-color: #10b981; --mdc-snackbar-supporting-text-color: white; }
+}
+
+.custom-dialog .mat-mdc-dialog-container {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+// ─── Attendance Highlight Directive ───────────────────────────────────────────
+.status-present { background: rgba(16, 185, 129, 0.05) !important; }
+.status-absent  { background: rgba(239, 68,  68,  0.05) !important; }
+.status-late    { background: rgba(245, 158, 11,  0.05) !important; }
+.status-halfday { background: rgba(99,  102, 241, 0.05) !important; }
+
+.leave-pending  {}
+.leave-approved { border-left-color: #10b981 !important; }
+.leave-rejected { border-left-color: #ef4444 !important; }
+
+// ─── Status chips using CSS vars (auto-adapts to theme) ───────────────────────
+.chip-present, .status-chip.active { background: var(--present-bg) !important; color: var(--present-text) !important; }
+.chip-absent, .status-chip.inactive { background: var(--absent-bg) !important; color: var(--absent-text) !important; }
+.chip-late    { background: var(--late-bg) !important;    color: var(--late-text) !important; }
+.chip-half-day { background: var(--halfday-bg) !important; color: var(--halfday-text) !important; }
+
+// ─── Page transition ──────────────────────────────────────────────────────────
+router-outlet + * {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ─── Smooth theme transitions ─────────────────────────────────────────────────
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+}
+
+// Exclude transitions that would look wrong
+mat-icon, button mat-icon, .mat-icon {
+  transition: none !important;
+}

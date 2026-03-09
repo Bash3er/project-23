@@ -1,0 +1,189 @@
+<div class="leave-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Apply for Leave</h1>
+      <p class="page-sub">Submit a leave request for approval</p>
+    </div>
+  </div>
+
+  <div class="leave-layout">
+    <!-- Left: Form -->
+    <div class="form-section">
+      <!-- Success State -->
+      @if (submitted) {
+        <div class="success-card">
+          <div class="success-icon"><mat-icon>check_circle</mat-icon></div>
+          <h3>Leave Request Submitted!</h3>
+          <p>Your request has been sent to HR for approval. You'll be notified once it's reviewed.</p>
+          <button mat-flat-button color="primary" (click)="resetForm()">
+            Apply Another Leave
+          </button>
+        </div>
+      } @else {
+        <div class="form-card">
+          <div class="form-card-header">
+            <mat-icon>event_note</mat-icon>
+            <h3>Leave Application Form</h3>
+          </div>
+
+          <form [formGroup]="leaveForm" (ngSubmit)="onSubmit()">
+
+            <!-- Leave Type -->
+            <div class="field-group">
+              <label class="field-label">Leave Type <span class="req">*</span></label>
+              <div class="leave-type-grid">
+                @for (type of leaveTypes; track type.value) {
+                  <div class="type-option"
+                    [class.selected]="leaveForm.get('leaveType')?.value === type.value"
+                    (click)="leaveForm.get('leaveType')?.setValue(type.value)">
+                    <span class="type-name">{{ type.label }}</span>
+                    <span class="type-balance">{{ getBalance(type.value) }} days left</span>
+                  </div>
+                }
+              </div>
+              @if (leaveForm.get('leaveType')?.invalid && leaveForm.get('leaveType')?.touched) {
+                <div class="field-error">Please select a leave type</div>
+              }
+            </div>
+
+            <!-- Date Range -->
+            <div class="field-row">
+              <div class="field-group">
+                <label class="field-label">From Date <span class="req">*</span></label>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-icon matPrefix>calendar_today</mat-icon>
+                  <input matInput type="date" formControlName="fromDate">
+                  @if (leaveForm.get('fromDate')?.invalid && leaveForm.get('fromDate')?.touched) {
+                    <mat-error>From date is required</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">To Date <span class="req">*</span></label>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-icon matPrefix>event</mat-icon>
+                  <input matInput type="date" formControlName="toDate">
+                  @if (leaveForm.get('toDate')?.invalid && leaveForm.get('toDate')?.touched) {
+                    <mat-error>To date is required</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+            </div>
+
+            @if (leaveForm.errors?.['dateRange']) {
+              <div class="field-error">End date must be after start date</div>
+            }
+
+            @if (leaveDays > 0) {
+              <div class="days-indicator">
+                <mat-icon>info</mat-icon>
+                <strong>{{ leaveDays }} working day(s)</strong> requested
+              </div>
+            }
+
+            <!-- Reason -->
+            <div class="field-group">
+              <label class="field-label">Reason for Leave <span class="req">*</span></label>
+              <mat-form-field appearance="outline" class="full-width">
+                <textarea matInput formControlName="reason" rows="4"
+                  placeholder="Briefly describe the reason for your leave (min. 10 characters)...">
+                </textarea>
+                <mat-hint align="end">{{ leaveForm.get('reason')?.value?.length || 0 }}/300</mat-hint>
+                @if (leaveForm.get('reason')?.hasError('required') && leaveForm.get('reason')?.touched) {
+                  <mat-error>Reason is required</mat-error>
+                }
+                @if (leaveForm.get('reason')?.hasError('minlength')) {
+                  <mat-error>Reason must be at least 10 characters</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <!-- Optional Fields -->
+            <div class="field-row">
+              <div class="field-group">
+                <label class="field-label">Handover To</label>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-icon matPrefix>person</mat-icon>
+                  <input matInput formControlName="handoverTo" placeholder="Colleague name">
+                </mat-form-field>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Contact During Leave</label>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-icon matPrefix>phone</mat-icon>
+                  <input matInput formControlName="contactDuring" placeholder="Phone number">
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="form-footer">
+              <button type="button" mat-stroked-button (click)="resetForm()">
+                Clear Form
+              </button>
+              <button type="submit" mat-flat-button color="primary"
+                [disabled]="leaveForm.invalid || submitting">
+                <mat-icon>{{ submitting ? 'hourglass_empty' : 'send' }}</mat-icon>
+                {{ submitting ? 'Submitting…' : 'Submit Leave Request' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+    </div>
+
+    <!-- Right: Balance & History -->
+    <div class="right-section">
+      <!-- Leave Balance -->
+      @if (leaveBalance) {
+        <div class="balance-card">
+          <h3><mat-icon>account_balance_wallet</mat-icon> Leave Balance</h3>
+          <div class="balance-grid">
+            <div class="balance-item">
+              <span class="bal-val">{{ leaveBalance.casual }}</span>
+              <span class="bal-label">Casual</span>
+            </div>
+            <div class="balance-item">
+              <span class="bal-val">{{ leaveBalance.sick }}</span>
+              <span class="bal-label">Sick</span>
+            </div>
+            <div class="balance-item">
+              <span class="bal-val">{{ leaveBalance.earned }}</span>
+              <span class="bal-label">Earned</span>
+            </div>
+            <div class="balance-item">
+              <span class="bal-val">{{ leaveBalance.unpaid }}</span>
+              <span class="bal-label">Unpaid</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Leave History -->
+      <div class="history-card">
+        <h3><mat-icon>history</mat-icon> My Leave History</h3>
+        @if (myLeaves.length === 0) {
+          <div class="empty-history">
+            <mat-icon>event_available</mat-icon>
+            <p>No leave history</p>
+          </div>
+        } @else {
+          <div class="history-list">
+            @for (leave of myLeaves; track leave.id) {
+              <div class="history-item" [class]="'ls-' + leave.status">
+                <div class="hi-header">
+                  <span class="hi-type">{{ leave.leaveType | leaveTypeBadge }}</span>
+                  <span class="hi-status" [class]="leave.status">{{ leave.status | titlecase }}</span>
+                </div>
+                <div class="hi-dates">
+                  {{ leave.fromDate | date:'MMM d' }} – {{ leave.toDate | date:'MMM d, y' }}
+                  · <strong>{{ leave.days }} day(s)</strong>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,184 @@
+<div class="dashboard">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{{ getGreeting() }}, Admin 👋</h1>
+      <p class="page-sub">{{ today | date:'EEEE, MMMM d, y' }} · Here's what's happening today</p>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button routerLink="/attendance">
+        <mat-icon>schedule</mat-icon> Mark Attendance
+      </button>
+      <button mat-flat-button color="primary" routerLink="/leave-request">
+        <mat-icon>add</mat-icon> Apply Leave
+      </button>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-grid">
+      <div class="skeleton-card" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+  } @else if (stats) {
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card total">
+        <div class="kpi-icon"><mat-icon>people_alt</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Total Employees</span>
+          <span class="kpi-value">{{ stats.totalEmployees }}</span>
+          <span class="kpi-delta positive">+2 this month</span>
+        </div>
+        <div class="kpi-ring"></div>
+      </div>
+
+      <div class="kpi-card present">
+        <div class="kpi-icon"><mat-icon>check_circle</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Present Today</span>
+          <span class="kpi-value">{{ stats.presentToday }}</span>
+          <span class="kpi-delta positive">{{ stats.attendanceRate }}% rate</span>
+        </div>
+        <div class="kpi-ring"></div>
+      </div>
+
+      <div class="kpi-card absent">
+        <div class="kpi-icon"><mat-icon>cancel</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Absent Today</span>
+          <span class="kpi-value">{{ stats.absentToday }}</span>
+          <span class="kpi-delta negative">{{ stats.lateArrivals }} late arrivals</span>
+        </div>
+        <div class="kpi-ring"></div>
+      </div>
+
+      <div class="kpi-card leave">
+        <div class="kpi-icon"><mat-icon>pending_actions</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Pending Leaves</span>
+          <span class="kpi-value">{{ stats.pendingLeaves }}</span>
+          <span class="kpi-delta warning">Needs approval</span>
+        </div>
+        <div class="kpi-ring"></div>
+      </div>
+    </div>
+
+    <!-- Attendance Rate Bar -->
+    <div class="attendance-overview">
+      <div class="overview-card">
+        <div class="overview-header">
+          <h3>Today's Attendance Overview</h3>
+          <span class="rate-badge">{{ stats.attendanceRate }}%</span>
+        </div>
+        <mat-progress-bar mode="determinate" [value]="stats.attendanceRate" class="main-bar"></mat-progress-bar>
+        <div class="overview-legend">
+          <span class="legend-item present-dot">Present: {{ stats.presentToday }}</span>
+          <span class="legend-item absent-dot">Absent: {{ stats.absentToday }}</span>
+          <span class="legend-item late-dot">Late: {{ stats.lateArrivals }}</span>
+          <span class="legend-item leave-dot">On Leave: {{ stats.onLeave }}</span>
+        </div>
+
+        <!-- Department Breakdown -->
+        <div class="dept-breakdown">
+          @for (dept of stats.departments; track dept.name) {
+            <div class="dept-row">
+              <span class="dept-name">{{ dept.name }}</span>
+              <div class="dept-bar-wrap">
+                <div class="dept-bar" [style.width.%]="(dept.present / dept.total) * 100"></div>
+              </div>
+              <span class="dept-count">{{ dept.present }}/{{ dept.total }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="quick-stats">
+        <div class="qs-card">
+          <mat-icon class="qs-icon on-leave">beach_access</mat-icon>
+          <div>
+            <span class="qs-val">{{ stats.onLeave }}</span>
+            <span class="qs-label">On Leave</span>
+          </div>
+        </div>
+        <div class="qs-card">
+          <mat-icon class="qs-icon late">access_time</mat-icon>
+          <div>
+            <span class="qs-val">{{ stats.lateArrivals }}</span>
+            <span class="qs-label">Late In</span>
+          </div>
+        </div>
+        <div class="qs-card action" routerLink="/leave-approval">
+          <mat-icon class="qs-icon pending">notifications_active</mat-icon>
+          <div>
+            <span class="qs-val">{{ stats.pendingLeaves }}</span>
+            <span class="qs-label">Pending Approvals</span>
+          </div>
+          <mat-icon class="arrow">chevron_right</mat-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="bottom-grid">
+      <!-- Today's Attendance Table -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Today's Attendance</h3>
+          <a routerLink="/attendance" mat-button color="primary">View All →</a>
+        </div>
+        <div class="attendance-list">
+          @for (rec of todayAttendance; track rec.id) {
+            <div class="att-row" [class]="'att-' + rec.status">
+              <div class="att-avatar">{{ rec.employeeName | slice:0:1 }}</div>
+              <div class="att-info">
+                <span class="att-name">{{ rec.employeeName }}</span>
+                <span class="att-dept">{{ rec.department }}</span>
+              </div>
+              <div class="att-times">
+                @if (rec.checkIn) {
+                  <span class="time-in">{{ rec.checkIn }}</span>
+                  <mat-icon class="time-arrow">arrow_forward</mat-icon>
+                  <span class="time-out">{{ rec.checkOut || '--:--' }}</span>
+                }
+              </div>
+              <div class="att-status-chip" [class]="'chip-' + rec.status">
+                {{ rec.status | titlecase }}
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Pending Leave Requests -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Pending Leave Requests</h3>
+          <a routerLink="/leave-approval" mat-button color="primary">Manage →</a>
+        </div>
+        <div class="leave-list">
+          @for (leave of pendingLeaves; track leave.id) {
+            <div class="leave-item">
+              <div class="leave-avatar">{{ leave.employeeName | slice:0:1 }}</div>
+              <div class="leave-info">
+                <span class="leave-name">{{ leave.employeeName }}</span>
+                <span class="leave-type">{{ leave.leaveType | titlecase }} · {{ leave.days }} day(s)</span>
+              </div>
+              <div class="leave-dates">
+                <span>{{ leave.fromDate | date:'MMM d' }}</span>
+                <span class="to-text">to</span>
+                <span>{{ leave.toDate | date:'MMM d' }}</span>
+              </div>
+              <div class="leave-badge pending">Pending</div>
+            </div>
+          } @empty {
+            <div class="empty-state">
+              <mat-icon>check_circle_outline</mat-icon>
+              <p>No pending leave requests</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

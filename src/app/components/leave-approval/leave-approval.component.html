@@ -1,0 +1,174 @@
+<div class="approval-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Leave Approval Panel</h1>
+      <p class="page-sub">Review and manage employee leave requests · HR Module</p>
+    </div>
+    <div class="header-stats">
+      <div class="hs-item pending">
+        <span class="hs-val">{{ pending.length }}</span>
+        <span class="hs-label">Pending</span>
+      </div>
+      <div class="hs-item approved">
+        <span class="hs-val">{{ approved.length }}</span>
+        <span class="hs-label">Approved</span>
+      </div>
+      <div class="hs-item rejected">
+        <span class="hs-val">{{ rejected.length }}</span>
+        <span class="hs-label">Rejected</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="filter-tabs">
+      <button [class.active]="filterStatus === 'pending'" (click)="filterStatus='pending'">
+        Pending <span class="tab-count">{{ pending.length }}</span>
+      </button>
+      <button [class.active]="filterStatus === 'approved'" (click)="filterStatus='approved'">
+        Approved <span class="tab-count approved">{{ approved.length }}</span>
+      </button>
+      <button [class.active]="filterStatus === 'rejected'" (click)="filterStatus='rejected'">
+        Rejected <span class="tab-count rejected">{{ rejected.length }}</span>
+      </button>
+      <button [class.active]="filterStatus === ''" (click)="filterStatus=''">
+        All
+      </button>
+    </div>
+
+    <select [(ngModel)]="filterDept" class="dept-select">
+      <option value="">All Departments</option>
+      @for (d of departments; track d) {
+        <option [value]="d">{{ d }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="approval-layout">
+    <!-- Leave List -->
+    <div class="leave-list-panel">
+      @for (leave of filtered; track leave.id) {
+        <div class="leave-card" [class.selected]="selectedLeave?.id === leave.id"
+          [class]="'lc-' + leave.status" (click)="selectLeave(leave)"
+          [appLeaveStatusHighlight]="leave.status">
+
+          <div class="lc-header">
+            <div class="lc-avatar">{{ leave.employeeName | slice:0:1 }}</div>
+            <div class="lc-info">
+              <span class="lc-name">{{ leave.employeeName }}</span>
+              <span class="lc-dept">{{ leave.department }}</span>
+            </div>
+            <div class="lc-status" [class]="leave.status">{{ leave.status | titlecase }}</div>
+          </div>
+
+          <div class="lc-body">
+            <div class="lc-type">{{ leave.leaveType | leaveTypeBadge }}</div>
+            <div class="lc-dates">
+              <mat-icon>date_range</mat-icon>
+              {{ leave.fromDate | date:'MMM d' }} – {{ leave.toDate | date:'MMM d, y' }}
+              · <strong>{{ leave.days }} day(s)</strong>
+            </div>
+          </div>
+
+          <div class="lc-footer">
+            <span class="lc-applied">Applied: {{ leave.appliedDate | date:'dd MMM y' }}</span>
+            @if (leave.status === 'pending') {
+              <div class="quick-actions">
+                <button mat-icon-button color="primary" (click)="$event.stopPropagation(); selectLeave(leave); approve()" matTooltip="Approve">
+                  <mat-icon>check_circle</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="$event.stopPropagation(); selectLeave(leave); reject()" matTooltip="Reject">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-list">
+          <mat-icon>inbox</mat-icon>
+          <p>No {{ filterStatus || '' }} leave requests</p>
+        </div>
+      }
+    </div>
+
+    <!-- Detail Panel -->
+    @if (selectedLeave) {
+      <div class="detail-panel">
+        <div class="dp-header">
+          <h3>Request Details</h3>
+          <button mat-icon-button (click)="selectedLeave = null"><mat-icon>close</mat-icon></button>
+        </div>
+
+        <div class="dp-employee">
+          <div class="dp-avatar">{{ selectedLeave.employeeName | slice:0:1 }}</div>
+          <div>
+            <h4>{{ selectedLeave.employeeName }}</h4>
+            <p>{{ selectedLeave.department }}</p>
+          </div>
+          <div class="dp-status" [class]="selectedLeave.status">{{ selectedLeave.status | titlecase }}</div>
+        </div>
+
+        <div class="dp-details">
+          <div class="dp-row">
+            <span class="dp-label">Leave Type</span>
+            <span class="dp-val">{{ selectedLeave.leaveType | leaveTypeBadge }}</span>
+          </div>
+          <div class="dp-row">
+            <span class="dp-label">Duration</span>
+            <span class="dp-val">
+              {{ selectedLeave.fromDate | date:'dd MMM y' }} →
+              {{ selectedLeave.toDate | date:'dd MMM y' }}
+              ({{ selectedLeave.days }} day(s))
+            </span>
+          </div>
+          <div class="dp-row">
+            <span class="dp-label">Applied On</span>
+            <span class="dp-val">{{ selectedLeave.appliedDate | date:'dd MMM y' }}</span>
+          </div>
+          <div class="dp-row">
+            <span class="dp-label">Reason</span>
+            <span class="dp-val reason-text">{{ selectedLeave.reason }}</span>
+          </div>
+          @if (selectedLeave.approvedBy) {
+            <div class="dp-row">
+              <span class="dp-label">Reviewed By</span>
+              <span class="dp-val">{{ selectedLeave.approvedBy }}</span>
+            </div>
+          }
+          @if (selectedLeave.remarks) {
+            <div class="dp-row">
+              <span class="dp-label">HR Remarks</span>
+              <span class="dp-val">{{ selectedLeave.remarks }}</span>
+            </div>
+          }
+        </div>
+
+        @if (selectedLeave.status === 'pending') {
+          <form [formGroup]="approvalForm" class="dp-action-form">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>HR Remarks (Optional)</mat-label>
+              <textarea matInput formControlName="remarks" rows="3"
+                placeholder="Add any comments or instructions..."></textarea>
+            </mat-form-field>
+
+            <div class="action-btns">
+              <button type="button" mat-flat-button class="reject-btn" (click)="reject()">
+                <mat-icon>cancel</mat-icon> Reject
+              </button>
+              <button type="button" mat-flat-button class="approve-btn" (click)="approve()">
+                <mat-icon>check_circle</mat-icon> Approve
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+    } @else {
+      <div class="detail-empty">
+        <mat-icon>touch_app</mat-icon>
+        <p>Select a leave request to review details</p>
+      </div>
+    }
+  </div>
+</div>
